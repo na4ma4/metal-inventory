@@ -1,0 +1,48 @@
+env:
+  - CGO_ENABLED=0
+
+before:
+  hooks:
+    - make test
+    - go generate ./...
+    - go mod tidy
+    - go mod download
+
+builds:
+  - id: mic
+    main: ./cmd/mic
+    binary: mic
+    targets:
+      - linux_amd64
+      - linux_arm
+
+  - id: mica
+    main: ./cmd/mica
+    binary: mica
+    targets:
+      - linux_amd64
+      - linux_arm
+
+  - id: micd
+    main: ./cmd/micd
+    binary: micd
+    targets:
+      - linux_amd64
+      - linux_arm
+
+
+archives:
+
+checksum:
+  algorithm: sha256
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^test:'

@@ -1,0 +1,159 @@
+syntax = "proto3";
+
+package mic.api;
+option go_package = "github.com/na4ma4/metal-inventory/api";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+
+message Empty {}
+
+message Member {
+    string id = 1;
+    string name = 10;
+    repeated string tag = 12;
+
+    string version = 90;
+    string git_hash = 91;
+    string build_date = 92;
+
+    google.protobuf.Timestamp last_seen = 100;
+    google.protobuf.Duration ping_latency = 102;
+
+    InfoStat info_stat = 200;
+    HardwareStat hw_stat = 201;
+
+    google.protobuf.Timestamp system_start = 301;
+    google.protobuf.Timestamp process_start = 302;
+
+    // Only used in rendering host lists, not transferred over the wire.
+    string last_seen_ago = 1001;
+    string latency = 1003;
+}
+
+message InfoStat {
+    google.protobuf.Timestamp timestamp = 1;
+    string hostname = 21;
+    uint64 uptime = 22;
+    uint64 boot_time = 23;
+    // number of processes
+    uint64 procs = 24;
+    // ex: freebsd, linux
+    string os = 25;
+    // ex: ubuntu, linuxmint
+    string platform = 26;
+    // ex: debian, rhel
+    string platform_family = 27;
+    // version of the complete OS
+    string platform_version = 28;
+    // version of the OS kernel (if available)
+    string kernel_version = 29;
+    // native cpu architecture queried at runtime, as returned by `uname -m` or empty string in case of error
+    string kernel_arch = 30;
+    string virt_system = 31;
+    // guest or host
+    string virt_role = 32;
+    // ex: uuid
+    string host_id = 33;
+}
+
+message HardwareStat {
+    string machine_id = 11;
+    string hypervisor = 12;
+
+    HWProduct product = 20;
+    HWBoard board = 21;
+    HWChassis chassis = 22;
+    HWBIOS bios = 23;
+    HWCPU cpu = 24;
+    HWMemory memory = 25;
+    repeated HWStorageDevice storage = 26;
+    repeated HWNetwork network = 27;
+}
+
+message HWProduct {
+    string name = 10;
+    string vendor = 11;
+    string version = 12;
+    string serial = 13;
+}
+
+message HWBoard {
+    string name = 10;
+    string vendor = 11;
+    string version = 12;
+    string serial = 13;
+    string asset_tag = 14;
+}
+
+message HWChassis {
+    uint64 type = 10;
+    string vendor = 11;
+    string version = 12;
+    string serial = 13;
+    string asset_tag = 14;
+}
+
+message HWBIOS {
+    string vendor = 10;
+    string version = 11;
+    string date = 12;
+}
+
+message HWCPU {
+    string vendor = 10;
+    string model = 11;
+    uint64 speed = 12;
+    uint64 cache = 13;
+    uint64 cpus = 14;
+    uint64 cores = 15;
+    uint64 threads = 16;
+}
+
+message HWMemory {
+    string type = 10;
+    uint64 speed = 11;
+    uint64 size = 12;
+}
+
+message HWStorageDevice {
+    string name = 1;
+    string driver = 2;
+    string vendor = 3;
+    string model = 4;
+    string serial = 5;
+    uint64 size = 6;
+}
+
+message HWNetwork {
+    string name = 1;
+    string driver = 2;
+    string mac_address = 3;
+    string port = 4;
+    uint64 speed = 5;
+}
+
+message Message {
+    oneof message {
+        RegisterMessage register_message = 100;
+        PingMessage ping_message = 101;
+        PongMessage pong_message = 102;
+    }
+}
+
+message RegisterMessage {
+    Member member = 1;
+}
+
+message PingMessage {
+    string id = 1;
+    string stream_id = 2;
+    google.protobuf.Timestamp ts = 4;
+}
+
+message PongMessage {
+    string id = 1;
+    string stream_id = 2;
+    google.protobuf.Timestamp ts = 4;
+}
+
